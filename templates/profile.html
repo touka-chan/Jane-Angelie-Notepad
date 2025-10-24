@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Profile</h1>
+<p class="subtitle">View and update your personal information (username is immutable).</p>
+
+
+<form id="profileForm" method="POST" class="form" novalidate onsubmit="return confirm('Update profile information?')">
+ <div class="row">
+   <input type="text" name="first_name" id="pf_first" value="{{ user.first_name }}" required placeholder="First name">
+   <input type="text" name="middle_name" id="pf_middle" value="{{ user.middle_name }}" placeholder="Middle name (optional)">
+   <input type="text" name="last_name" id="pf_last" value="{{ user.last_name }}" required placeholder="Last name">
+ </div>
+
+
+ <div class="row">
+   <input type="date" name="dob" id="pf_dob" value="{{ user.dob }}" required>
+   <input type="text" id="pf_contact" name="contact" value="{{ user.contact }}" required placeholder="Contact">
+ </div>
+
+
+ <label class="subtitle" style="text-align:left; font-size:0.9rem;">Address</label>
+ <div class="row">
+   <select id="pf_province" name="province" required></select>
+   <select id="pf_city" name="city" required></select>
+ </div>
+ <div class="row">
+   <select id="pf_barangay" name="barangay" required></select>
+   <input type="text" id="pf_zipcode" name="zipcode" value="{{ user.zipcode }}" readonly placeholder="ZIP">
+ </div>
+
+
+ <input type="text" id="pf_street" name="street" value="{{ user.street }}" placeholder="Street (optional)">
+ <input type="email" id="pf_email" name="email" value="{{ user.email }}" required placeholder="Email">
+
+
+ <button class="btn" type="submit">Update Information</button>
+</form>
+
+
+<div style="margin-top:12px;">
+ <button id="requestOtpBtn" class="btn btn-secondary" type="button">Request OTP (for password change)</button>
+</div>
+
+
+<div id="otpBox" style="display:none;margin-top:12px;">
+ <div class="form" style="max-width:480px;">
+   <div style="display:flex;gap:8px;align-items:center;">
+     <input id="otp_input" placeholder="Enter OTP (6 digits)" maxlength="6">
+     <div id="otp_countdown" style="font-size:13px;color:var(--muted)"></div>
+   </div>
+
+
+   <div style="position:relative;">
+     <input type="password" id="new_pass" placeholder="New password">
+     <button type="button" class="eye-btn" data-target="new_pass" title="Show/Hide password">
+       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+     </button>
+   </div>
+
+
+   <div style="position:relative;">
+     <input type="password" id="confirm_pass" placeholder="Confirm password">
+     <button type="button" class="eye-btn" data-target="confirm_pass" title="Show/Hide password">
+       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+     </button>
+   </div>
+
+
+   <div style="display:flex;gap:8px;">
+     <button id="verifyOtpBtn" class="btn" type="button">Verify OTP & Update</button>
+     <button id="cancelOtpBtn" class="btn btn-secondary" type="button">Cancel</button>
+   </div>
+ </div>
+</div>
+
+
+<script>
+/* profile page JS triggers are handled by static/script.js which will attach listeners */
+</script>
+{% endblock %}

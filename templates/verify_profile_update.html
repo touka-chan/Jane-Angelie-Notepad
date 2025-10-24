@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Verify OTP - Profile Update{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="forgot-header">
+            <h2>Verify Profile Update</h2>
+            <p class="forgot-subtitle">Enter the 6-digit code to confirm your profile changes</p>
+        </div>
+
+        <div class="session-info">
+            <h4>Profile Update Session:</h4>
+            <p>Username: {{ current_username }}</p>
+            <p>OTP: {{ otp_display }}</p>
+            <p>Time Consumed: <span id="time-consumed">{{ time_consumed }}</span></p>
+            <p>Time Remaining: <span id="time-remaining">{{ time_remaining }}</span></p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="form" id="otp-form">
+            <input type="hidden" name="current_username" value="{{ current_username }}">
+            
+            <div class="form-group">
+                <label for="otp" class="form-label">OTP Code</label>
+                <input type="text" 
+                       id="otp" 
+                       name="otp" 
+                       placeholder="Enter 6-digit code" 
+                       required 
+                       maxlength="6" 
+                       pattern="[0-9]{6}"
+                       class="form-input">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                Verify & Update Profile
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-full">Cancel Update</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timeConsumedElement = document.getElementById('time-consumed');
+    const timeRemainingElement = document.getElementById('time-remaining');
+    const otpInput = document.getElementById('otp');
+    
+    const initialTimeRemaining = "{{ time_remaining }}"; 
+    const initialTimeConsumed = "{{ time_consumed }}"; 
+    
+    function timeToSeconds(timeStr) {
+        if (!timeStr) return 180; 
+        const [minutes, seconds] = timeStr.split(':').map(Number);
+        return minutes * 60 + seconds;
+    }
+    
+    let remainingSeconds = timeToSeconds(initialTimeRemaining);
+    const totalSeconds = 180; 
+    
+    function updateTimer() {
+        if (remainingSeconds <= 0) {
+            timeConsumedElement.textContent = '03:00';
+            timeRemainingElement.textContent = '00:00';
+            timeRemainingElement.style.color = '#dc3545';
+            
+            setTimeout(function() {
+                window.location.href = "{{ url_for('main.profile') }}";
+            }, 1000);
+            return;
+        }
+        
+        
+        const timeConsumedSeconds = totalSeconds - remainingSeconds;
+        
+        const consumedMinutes = Math.floor(timeConsumedSeconds / 60);
+        const consumedSeconds = timeConsumedSeconds % 60;
+        timeConsumedElement.textContent = 
+            `${consumedMinutes.toString().padStart(2, '0')}:${consumedSeconds.toString().padStart(2, '0')}`;
+        
+        const remainingMinutes = Math.floor(remainingSeconds / 60);
+        const remainingSecs = remainingSeconds % 60;
+        timeRemainingElement.textContent = 
+            `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+        
+        if (remainingSeconds < 60) {
+            timeRemainingElement.style.color = '#dc3545';
+        } else if (remainingSeconds < 120) {
+            timeRemainingElement.style.color = '#ffc107';
+        } else {
+            timeRemainingElement.style.color = ''; 
+        }
+        
+        remainingSeconds--;
+    }
+    
+    function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    function initialize() {
+        console.log('Initializing profile update timer with:', {
+            initialTimeRemaining: initialTimeRemaining,
+            initialTimeConsumed: initialTimeConsumed,
+            remainingSeconds: remainingSeconds
+        });
+        
+        timeConsumedElement.textContent = initialTimeConsumed;
+        timeRemainingElement.textContent = initialTimeRemaining;
+        
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+        
+        otpInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        otpInput.focus();
+        
+        otpInput.addEventListener('input', function(e) {
+            if (this.value.length === 6) {
+                document.getElementById('otp-form').submit();
+            }
+        });
+        
+        window.addEventListener('beforeunload', function() {
+            clearInterval(timerInterval);
+        });
+    }
+    
+    initialize();
+});
+</script>
+
+<style>
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+.forgot-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.forgot-header h2 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.forgot-subtitle {
+    color: #666;
+    margin-bottom: 0;
+}
+
+.session-info {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.session-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.session-info p {
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.session-info p:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.5em;
+    transition: border-color 0.3s;
+    font-weight: bold;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+#time-remaining {
+    font-weight: bold;
+}
+
+#time-consumed {
+    font-weight: normal;
+}
+</style>
+{% endblock %}

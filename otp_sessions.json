@@ -1,0 +1,10 @@
+{
+  "Lance": {
+    "username": "Lance",
+    "otp": "529155",
+    "expires_at": "2025-10-24T10:38:00.528490",
+    "sent_at": "2025-10-24T10:35:00.528644",
+    "time_consumed": "0:45",
+    "purpose": "password_reset"
+  }
+}

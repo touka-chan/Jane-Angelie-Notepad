@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Register</h1>
+<p class="subtitle">Create an Account</p>
+<form method="POST" class="form" id="registerForm" novalidate>
+ <div class="row">
+   <div class="field-container">
+     <input type="text" name="first_name" id="first_name" placeholder="First name" required 
+            value="{{ form_data.first_name if form_data }}">
+     <div class="error-message" id="first_name_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="text" name="middle_name" id="middle_name" placeholder="Middle name (optional)"
+            value="{{ form_data.middle_name if form_data }}">
+     <div class="error-message" id="middle_name_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="text" name="last_name" id="last_name" placeholder="Last name" required
+            value="{{ form_data.last_name if form_data }}">
+     <div class="error-message" id="last_name_error"></div>
+   </div>
+ </div>
+
+ <div class="row">
+   <div class="field-container">
+     <input type="date" name="dob" id="dob" required value="{{ form_data.dob if form_data }}">
+     <div class="error-message" id="dob_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="text" name="age" id="age" placeholder="Age" readonly>
+   </div>
+ </div>
+
+ <div class="field-container">
+   <input type="text" name="street" id="street" placeholder="Street (optional)"
+          value="{{ form_data.street if form_data }}">
+   <div class="error-message" id="street_error"></div>
+ </div>
+
+ <div class="field-container">
+   <input type="text" name="contact" id="contact" placeholder="Contact (11 digits, start 09)" required
+          value="{{ form_data.contact if form_data }}">
+   <div class="error-message" id="contact_error"></div>
+ </div>
+
+ <label class="subtitle" style="text-align:left; font-size:0.9rem;">Address</label>
+ <div class="row">
+   <div class="field-container">
+     <select id="province" name="province" required>
+       <option value="">Select Province</option>
+       {% if form_data and form_data.province %}
+       <option value="{{ form_data.province }}" selected>{{ form_data.province }}</option>
+       {% endif %}
+     </select>
+     <div class="error-message" id="province_error"></div>
+   </div>
+   <div class="field-container">
+     <select id="city" name="city" required>
+       <option value="">Select City/Municipality</option>
+       {% if form_data and form_data.city %}
+       <option value="{{ form_data.city }}" selected>{{ form_data.city }}</option>
+       {% endif %}
+     </select>
+     <div class="error-message" id="city_error"></div>
+   </div>
+ </div>
+ <div class="row">
+   <div class="field-container">
+     <select id="barangay" name="barangay" required>
+       <option value="">Select Barangay</option>
+       {% if form_data and form_data.barangay %}
+       <option value="{{ form_data.barangay }}" selected>{{ form_data.barangay }}</option>
+       {% endif %}
+     </select>
+     <div class="error-message" id="barangay_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="text" id="zipcode" name="zipcode" placeholder="ZIP code (auto-fill)" readonly
+            value="{{ form_data.zipcode if form_data }}">
+   </div>
+ </div>
+
+ <div class="row">
+   <div class="field-container">
+     <input type="text" name="username" id="username" placeholder="Username (3-30 chars)" required
+            value="{{ form_data.username if form_data }}">
+     <div class="error-message" id="username_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="email" name="email" id="email" placeholder="Email address" required
+            value="{{ form_data.email if form_data }}">
+     <div class="error-message" id="email_error"></div>
+   </div>
+ </div>
+
+ <div class="row" style="align-items:center; position:relative;">
+   <div class="field-container">
+     <input type="password" name="password" id="password" placeholder="Password (min 8: upper, lower, number, symbol)" required>
+     <div class="error-message" id="password_error"></div>
+   </div>
+   <div class="field-container">
+     <input type="password" name="confirm" id="confirm" placeholder="Confirm password" required>
+     <div class="error-message" id="confirm_error"></div>
+   </div>
+ </div>
+
+ <div style="display:flex;gap:8px;">
+   <button class="btn" type="submit" id="registerBtn">Register</button>
+   <button type="button" class="btn btn-secondary" id="pw-toggle-register">Show Passwords</button>
+ </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const fields = {
+        first_name: document.getElementById('first_name'),
+        middle_name: document.getElementById('middle_name'),
+        last_name: document.getElementById('last_name'),
+        dob: document.getElementById('dob'),
+        contact: document.getElementById('contact'),
+        province: document.getElementById('province'),
+        city: document.getElementById('city'),
+        barangay: document.getElementById('barangay'),
+        username: document.getElementById('username'),
+        email: document.getElementById('email'),
+        password: document.getElementById('password'),
+        confirm: document.getElementById('confirm')
+    };
+
+    const errorElements = {
+        first_name: document.getElementById('first_name_error'),
+        middle_name: document.getElementById('middle_name_error'),
+        last_name: document.getElementById('last_name_error'),
+        dob: document.getElementById('dob_error'),
+        contact: document.getElementById('contact_error'),
+        province: document.getElementById('province_error'),
+        city: document.getElementById('city_error'),
+        barangay: document.getElementById('barangay_error'),
+        username: document.getElementById('username_error'),
+        email: document.getElementById('email_error'),
+        password: document.getElementById('password_error'),
+        confirm: document.getElementById('confirm_error')
+    };
+
+    const errorMessages = {
+        first_name: 'Letters and spaces only, 2-50 characters',
+        last_name: 'Letters and spaces only, 2-50 characters',
+        middle_name: 'Letters and spaces only',
+        dob: 'Must be 13-80 years old',
+        contact: '11 digits starting with 09',
+        province: 'Province is required',
+        city: 'City is required',
+        barangay: 'Barangay is required',
+        username: '3-30 chars: letters, numbers, @ . + - _',
+        email: 'Valid email from common providers',
+        password: 'Min 8 chars: upper, lower, number, symbol',
+        confirm: 'Passwords must match'
+    };
+
+    const validators = {
+        first_name: (value) => {
+            if (!value) return false;
+            if (!/^[a-zA-Z\s]+$/.test(value)) return false;
+            if (value.length < 2 || value.length > 50) return false;
+            if (/(.)\1{3,}/.test(value.replace(/\s/g, ''))) return false;
+            if (value.includes('  ')) return false;
+            return true;
+        },
+
+        last_name: (value) => {
+            if (!value) return false;
+            if (!/^[a-zA-Z\s]+$/.test(value)) return false;
+            if (value.length < 2 || value.length > 50) return false;
+            if (/(.)\1{3,}/.test(value.replace(/\s/g, ''))) return false;
+            if (value.includes('  ')) return false;
+            return true;
+        },
+
+        middle_name: (value) => {
+            if (!value) return true;
+            if (!/^[a-zA-Z\s]*$/.test(value)) return false;
+            if (value.length > 50) return false;
+            if (/(.)\1{3,}/.test(value.replace(/\s/g, ''))) return false;
+            if (value.includes('  ')) return false;
+            return true;
+        },
+
+        dob: (value) => {
+            if (!value) return false;
+            const birthDate = new Date(value);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age >= 13 && age <= 80;
+        },
+
+        contact: (value) => {
+            if (!value) return false;
+            const cleanValue = value.replace(/\D/g, '');
+            if (cleanValue.length !== 11) return false;
+            if (!cleanValue.startsWith('09')) return false;
+            if (/(\d)\1{9}/.test(cleanValue)) return false;
+            const invalidNumbers = ['09123456789', '09987654321', '09111111111', '09000000000'];
+            if (invalidNumbers.includes(cleanValue)) return false;
+            return true;
+        },
+
+        username: (value) => {
+            if (!value) return false;
+            if (value.length < 3 || value.length > 30) return false;
+            if (!/^[a-zA-Z0-9_@.+\-]+$/.test(value)) return false;
+            if (/(.)\1{3,}/.test(value)) return false;
+            if (value.startsWith('_') || value.endsWith('_')) return false;
+            
+            if (value.length >= 3) {
+                for (let i = 0; i < value.length - 2; i++) {
+                    if (value[i].match(/[a-z]/i) && value[i+1].match(/[a-z]/i) && value[i+2].match(/[a-z]/i)) {
+                        const char1 = value[i].toLowerCase().charCodeAt(0);
+                        const char2 = value[i+1].toLowerCase().charCodeAt(0);
+                        const char3 = value[i+2].toLowerCase().charCodeAt(0);
+                        if (char1 + 1 === char2 && char2 + 1 === char3) return false;
+                    }
+                }
+            }
+
+            if (value.length >= 3) {
+                for (let i = 0; i < value.length - 2; i++) {
+                    if (/\d/.test(value[i]) && /\d/.test(value[i+1]) && /\d/.test(value[i+2])) {
+                        const num1 = parseInt(value[i]);
+                        const num2 = parseInt(value[i+1]);
+                        const num3 = parseInt(value[i+2]);
+                        if (num1 + 1 === num2 && num2 + 1 === num3) return false;
+                    }
+                }
+            }
+
+            const genericUsernames = ["user", "admin", "test", "demo", "guest", "username", "account", "root", "system"];
+            if (genericUsernames.includes(value.toLowerCase())) return false;
+            return true;
+        },
+
+        email: (value) => {
+            if (!value) return false;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) return false;
+            if (value.length > 100) return false;
+            
+            const domain = value.split('@')[1];
+            const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
+            if (!validDomains.includes(domain)) return false;
+
+            const disposableDomains = ['tempmail.com', 'throwaway.com', 'fake.com', 'mailinator.com', 'guerrillamail.com'];
+            if (disposableDomains.includes(domain)) return false;
+            return true;
+        },
+
+        password: (value) => {
+            if (!value) return false;
+            if (value.length < 8 || value.length > 128) return false;
+            if (!/(?=.*[a-z])/.test(value)) return false;
+            if (!/(?=.*[A-Z])/.test(value)) return false;
+            if (!/(?=.*\d)/.test(value)) return false;
+            if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value)) return false;
+            if (/(.)\1{2,}/.test(value)) return false;
+            
+            const commonPasswords = ["password", "12345678", "qwerty", "admin", "welcome", "password123"];
+            if (commonPasswords.includes(value.toLowerCase())) return false;
+            return true;
+        },
+
+        confirm: (value) => {
+            return value === fields.password.value;
+        },
+
+        province: (value) => !!value && value !== '',
+        city: (value) => !!value && value !== '',
+        barangay: (value) => !!value && value !== ''
+    };
+
+    
+    function setFieldValid(field, isValid) {
+        if (isValid) {
+            field.classList.remove('invalid');
+        } else {
+            field.classList.add('invalid');
+        }
+    }
+
+    function showError(fieldName, message) {
+        const errorElement = errorElements[fieldName];
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function hideError(fieldName) {
+        const errorElement = errorElements[fieldName];
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    }
+
+    Object.keys(fields).forEach(fieldName => {
+        const field = fields[fieldName];
+        
+        field.addEventListener('blur', function() {
+            validateField(fieldName);
+        });
+
+        field.addEventListener('input', function() {
+            if (field.classList.contains('invalid')) {
+                validateField(fieldName);
+            }
+            if (field.value.trim()) {
+                hideError(fieldName);
+            }
+        });
+
+        if (fieldName === 'password') {
+            field.addEventListener('input', function() {
+                if (fields.confirm.value) {
+                    validateField('confirm');
+                }
+            });
+        }
+    });
+
+    function validateField(fieldName) {
+        const field = fields[fieldName];
+        const value = field.type === 'select-one' ? field.value : field.value.trim();
+        const isValid = validators[fieldName](value);
+        
+        setFieldValid(field, isValid);
+        
+        if (!isValid && value) {
+            showError(fieldName, errorMessages[fieldName]);
+        } else {
+            hideError(fieldName);
+        }
+
+        return isValid;
+    }
+
+    form.addEventListener('submit', function(e) {
+        let isFormValid = true;
+        
+        Object.keys(fields).forEach(fieldName => {
+            if (!validateField(fieldName)) {
+                isFormValid = false;
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+        }
+    });
+
+    fields.dob.addEventListener('change', function() {
+        if (this.value) {
+            const birthDate = new Date(this.value);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            fields.age.value = age;
+            validateField('dob');
+        }
+    });
+
+    document.getElementById('pw-toggle-register').addEventListener('click', function() {
+        const passwordFields = [fields.password, fields.confirm];
+        const isPassword = fields.password.type === 'password';
+        
+        passwordFields.forEach(field => {
+            field.type = isPassword ? 'text' : 'password';
+        });
+        
+        this.textContent = isPassword ? 'Hide Passwords' : 'Show Passwords';
+    });
+
+    initializeAddressDropdowns();
+});
+
+function initializeAddressDropdowns() {
+    const province = document.getElementById('province');
+    const city = document.getElementById('city');
+    const barangay = document.getElementById('barangay');
+    
+    [province, city, barangay].forEach(field => {
+        if (field.value) {
+            field.classList.remove('invalid');
+        }
+    });
+}
+</script>
+
+<style>
+.field-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: none;
+    min-height: 16px;
+}
+
+.invalid {
+    border-color: #e05b5b !important;
+    box-shadow: 0 6px 18px rgba(224,91,91,0.06) !important;
+}
+
+.row {
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+    .field-container {
+        margin-bottom: 0;
+    }
+}
+</style>
+{% endblock %}

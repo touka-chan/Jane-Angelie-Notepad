@@ -1,0 +1,26 @@
+[
+  {
+    "username": "Lance",
+    "display_username": "Lance",
+    "first_name": "Lance",
+    "middle_name": "",
+    "last_name": "Bradly",
+    "dob": "2007-12-12",
+    "age": 17,
+    "contact": "09562897891",
+    "province": "Quezon",
+    "city": "Tayabas",
+    "barangay": "Poblacion",
+    "zipcode": "4325",
+    "street": "",
+    "email": "lance@gmail.com",
+    "password": "scrypt:32768:8:1$x19IIXZbsGnCxKnG$c33dd046b54d1742c838abc38dbb662ee79a6ad3cf3baa6e35f201c241d9b96947726de23886fc474fc2af210a2b33b6f9df44d01bf7e6630849ae687c041966",
+    "created_at": "2025-10-24T17:21:43.321063",
+    "last_login": null,
+    "is_active": true,
+    "login_attempts": 0,
+    "updated_at": "2025-10-24T18:19:25.116467",
+    "failed_attempts": 0,
+    "lockout_until": 0
+  }
+]

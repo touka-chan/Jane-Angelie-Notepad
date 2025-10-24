@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width,initial-scale=1" />
+ <title>Notepad</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+ <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+ <div class="container">
+   <div class="card">
+     <div class="header">
+       <div class="brand">NOTEPAD || NOTE TAKING</div>
+       <div>
+         {% if session.get('username') %}
+           <a class="small-link" href="{{ url_for('main.home') }}">Home</a>
+           <a class="small-link" href="{{ url_for('main.profile') }}">Profile</a>
+           <a class="small-link" data-confirm="Are you sure you want to logout?" href="{{ url_for('auth.logout') }}">Logout</a>
+         {% else %}
+           <a class="small-link" href="{{ url_for('auth.login') }}">Login</a>
+           <a class="small-link" href="{{ url_for('auth.register') }}">Register</a>
+         {% endif %}
+       </div>
+     </div>
+
+
+     {% with messages = get_flashed_messages(with_categories=true) %}
+     {% if messages %}
+       {% for category, message in messages %}
+         <div class="flash {% if category == 'error' %}error{% elif category == 'info' %}info{% elif category == 'success' %}success{% endif %}">{{ message }}</div>
+       {% endfor %}
+     {% endif %}
+     {% endwith %}
+
+
+     <main>
+       {% block content %}{% endblock %}
+     </main>
+   </div>
+ </div>
+</body>
+</html>

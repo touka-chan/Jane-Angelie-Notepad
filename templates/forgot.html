@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Forgot Password</h1>
+<p class="subtitle">Enter your username or email to receive a demo OTP (shown on screen).</p>
+<form method="POST" class="form" id="forgotForm">
+ <input type="text" name="username" placeholder="Username or email" required>
+ <button class="btn" type="submit">Send OTP</button>
+</form>
+{% endblock %}

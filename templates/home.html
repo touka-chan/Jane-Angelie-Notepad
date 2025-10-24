@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome{% if session.username %}, {{ session.display_name or session.username }}{% endif %}</h1>
+<p class="subtitle">Organize your notes.</p>
+
+
+{% if edit_note %}
+ <h2>Edit Note</h2>
+ <form method="POST" action="{{ url_for('main.edit_note', note_id=edit_note.id) }}" class="form" onsubmit="return confirm('Are you sure you want to save changes?')">
+   <input type="text" name="title" value="{{ edit_note.title }}" required>
+   <textarea name="content" rows="4">{{ edit_note.content }}</textarea>
+   <button class="btn" type="submit">Save changes</button>
+ </form>
+{% else %}
+ <h2>New Note</h2>
+ <form method="POST" action="{{ url_for('main.add_note') }}" class="form" onsubmit="return confirm('Add this note?')">
+   <input type="text" name="title" placeholder="Note title" required>
+   <textarea name="content" placeholder="Write something..." rows="4"></textarea>
+   <button class="btn" type="submit">Add note</button>
+ </form>
+{% endif %}
+
+
+<div class="hr-faint"></div>
+
+
+<h2>Your Notes</h2>
+{% if active_notes %}
+ <div class="note-grid">
+   {% for note in active_notes %}
+     <div class="note-card">
+       <h4>{{ note.title }}</h4>
+       <p style="color:var(--muted)">{{ note.content }}</p>
+       <small style="color:var(--muted)">{{ note.timestamp }}</small>
+       <div style="margin-top:10px;display:flex;gap:8px;">
+         <a class="btn btn-secondary" href="{{ url_for('main.edit_note', note_id=note.id) }}">Edit</a>
+         <a class="btn btn-danger" data-confirm="Archive this note?" href="{{ url_for('main.delete_note', note_id=note.id) }}">Archive</a>
+       </div>
+     </div>
+   {% endfor %}
+ </div>
+{% else %}
+ <p style="color:var(--muted)">No active notes yet.</p>
+{% endif %}
+
+
+<div class="hr-faint"></div>
+
+
+<h2>Archived Notes</h2>
+{% if archived_notes %}
+ <div class="note-grid">
+   {% for note in archived_notes %}
+     <div class="note-card archived">
+       <h4>{{ note.title }}</h4>
+       <p style="color:var(--muted)">{{ note.content }}</p>
+       <small style="color:var(--muted)">{{ note.timestamp }}</small>
+       <div style="margin-top:10px;display:flex;gap:8px;">
+         <a class="btn btn-success" href="{{ url_for('main.restore_note', note_id=note.id) }}">Restore</a>
+         <a class="btn btn-danger" data-confirm="Permanently delete this note?" href="{{ url_for('main.permanent_delete', note_id=note.id) }}">Delete</a>
+       </div>
+     </div>
+   {% endfor %}
+ </div>
+{% else %}
+ <p style="color:var(--muted)">No archived notes.</p>
+{% endif %}
+{% endblock %}
