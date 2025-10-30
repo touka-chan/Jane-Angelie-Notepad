@@ -23,16 +23,32 @@ document.addEventListener("DOMContentLoaded", () => {
  });
 
 
- // Eye button toggles for password fields (SVG button, non-emoji)
- qsa(".eye-btn").forEach(btn => {
-   btn.addEventListener("click", (e) => {
-     e.preventDefault();
-     const targetId = btn.dataset.target;
-     const target = document.getElementById(targetId);
-     if (!target) return;
-     target.type = (target.type === "password") ? "text" : "password";
-   });
- });
+ // UNIVERSAL PASSWORD TOGGLE - REPLACED ALL INDIVIDUAL TOGGLE FUNCTIONS
+ function initializeAllPasswordToggles() {
+     qsa(".eye-btn").forEach(btn => {
+         btn.addEventListener("click", function(e) {
+             e.preventDefault();
+             const targetId = this.dataset.target;
+             const target = document.getElementById(targetId);
+             if (!target) return;
+             
+             // Toggle password visibility
+             target.type = (target.type === "password") ? "text" : "password";
+             
+             // Update icon state if dual icons are present
+             const eyeIcons = this.querySelectorAll('svg');
+             if (eyeIcons.length >= 2) {
+                 if (target.type === "text") {
+                     eyeIcons[0].style.display = 'none';
+                     eyeIcons[1].style.display = 'block';
+                 } else {
+                     eyeIcons[0].style.display = 'block';
+                     eyeIcons[1].style.display = 'none';
+                 }
+             }
+         });
+     });
+ }
 
 
  // Show / hide both password inputs on register page via the 'pw-toggle-register' button
@@ -291,7 +307,11 @@ document.addEventListener("DOMContentLoaded", () => {
  }
 
 
+ // INITIALIZE ALL PASSWORD TOGGLES - DITO MO I-CALL
+ initializeAllPasswordToggles();
+
 });
+
 // Add confirmation for restore actions
 document.addEventListener('DOMContentLoaded', function() {
     // Select all restore buttons and add confirmation
@@ -306,6 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 function validateEditForm(noteId) {
     const form = document.getElementById('editNoteForm' + noteId);
     const originalTitle = form.dataset.originalTitle;

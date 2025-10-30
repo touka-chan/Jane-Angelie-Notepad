@@ -93,20 +93,32 @@
    </div>
  </div>
 
+ <!-- PASSWORD FIELDS WITH INDIVIDUAL EYE BUTTONS -->
  <div class="row" style="align-items:center; position:relative;">
-   <div class="field-container">
+   <div class="field-container" style="position:relative;">
      <input type="password" name="password" id="password" placeholder="Password (min 8: upper, lower, number, symbol)" required>
+     <button type="button" class="eye-btn" data-target="password" aria-label="Toggle password visibility" title="Show/Hide password" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer;">
+       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+         <circle cx="12" cy="12" r="3"></circle>
+       </svg>
+     </button>
      <div class="error-message" id="password_error"></div>
    </div>
-   <div class="field-container">
+   <div class="field-container" style="position:relative;">
      <input type="password" name="confirm" id="confirm" placeholder="Confirm password" required>
+     <button type="button" class="eye-btn" data-target="confirm" aria-label="Toggle password visibility" title="Show/Hide password" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer;">
+       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+         <circle cx="12" cy="12" r="3"></circle>
+       </svg>
+     </button>
      <div class="error-message" id="confirm_error"></div>
    </div>
  </div>
 
  <div style="display:flex;gap:8px;">
    <button class="btn" type="submit" id="registerBtn">Register</button>
-   <button type="button" class="btn btn-secondary" id="pw-toggle-register">Show Passwords</button>
  </div>
 </form>
 
@@ -407,6 +419,7 @@ function initializeAddressDropdowns() {
     display: flex;
     flex-direction: column;
     flex: 1;
+    position: relative;
 }
 
 .error-message {
@@ -425,6 +438,24 @@ function initializeAddressDropdowns() {
 .row {
     gap: 10px;
     margin-bottom: 0;
+}
+
+.eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+    padding: 5px;
+    border-radius: 4px;
+    transition: color 0.3s;
+}
+
+.eye-btn:hover {
+    color: #4a90e2;
 }
 
 @media (max-width: 760px) {

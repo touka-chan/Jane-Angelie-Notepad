@@ -5,7 +5,7 @@ import re
 import time
 import random
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__, template_folder="templates")
@@ -433,28 +433,42 @@ def register():
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
-   if request.method == 'POST':
-       identifier = request.form.get('username','').strip()
-       password = request.form.get('password','')
-       if not identifier or not password:
-           flash("Please fill in all fields.", "error")
-           return redirect(url_for('auth.login'))
-       users = load_users()
-       user = next((u for u in users if u.get('username','').lower() == identifier.lower() or u.get('email','').lower() == identifier.lower()), None)
-       if not user:
-           flash("Invalid username/email or password.", "error")
-           return redirect(url_for('auth.login'))
-       if not check_password_hash(user.get('password',''), password):
-           flash("Invalid username/email or password.", "error")
-           return redirect(url_for('auth.login'))
+    # If user is already logged in, redirect to home
+    if session.get('username'):
+        return redirect(url_for('main.home'))
+        
+    if request.method == 'POST':
+        identifier = request.form.get('username','').strip()
+        password = request.form.get('password','')
+        if not identifier or not password:
+            flash("Please fill in all fields.", "error")
+            return redirect(url_for('auth.login'))
+        users = load_users()
+        user = next((u for u in users if u.get('username','').lower() == identifier.lower() or u.get('email','').lower() == identifier.lower()), None)
+        if not user:
+            flash("Invalid username/email or password.", "error")
+            return redirect(url_for('auth.login'))
+        if not check_password_hash(user.get('password',''), password):
+            flash("Invalid username/email or password.", "error")
+            return redirect(url_for('auth.login'))
 
-       session['username'] = user.get('username')
-       session['display_name'] = user.get('first_name') or user.get('display_username') or user.get('username')
-       flash("Welcome back!", "success")
-       return redirect(url_for('main.home'))
-   if session.get('username'):
-       return redirect(url_for('main.home'))
-   return render_template('login.html')
+        session['username'] = user.get('username')
+        session['display_name'] = user.get('first_name') or user.get('display_username') or user.get('username')
+        flash("Welcome back!", "success")
+        
+        # Create response object with cache control headers
+        response = redirect(url_for('main.home'))
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+        
+    # For GET request, create response object with cache control
+    response = make_response(render_template('login.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @auth.route('/forgot', methods=['GET','POST'])
 def forgot():
@@ -703,9 +717,14 @@ def reset_password():
 
 @auth.route('/logout')
 def logout():
-   session.clear()
-   flash("You have been logged out.", "info")
-   return redirect(url_for('auth.login'))
+    session.clear()
+    flash("You have been logged out.", "info")
+    # Create response object with cache control headers
+    response = redirect(url_for('auth.login'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @auth.route('/request_profile_otp', methods=['POST'])
 def request_profile_otp():

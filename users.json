@@ -8,10 +8,10 @@
     "dob": "2007-12-12",
     "age": 17,
     "contact": "09562897891",
-    "province": "Quezon",
-    "city": "Tayabas",
-    "barangay": "Poblacion",
-    "zipcode": "4325",
+    "province": "Cavite",
+    "city": "Bacoor",
+    "barangay": "Aplaya",
+    "zipcode": "4102",
     "street": "",
     "email": "lance@gmail.com",
     "password": "scrypt:32768:8:1$x19IIXZbsGnCxKnG$c33dd046b54d1742c838abc38dbb662ee79a6ad3cf3baa6e35f201c241d9b96947726de23886fc474fc2af210a2b33b6f9df44d01bf7e6630849ae687c041966",
@@ -19,7 +19,7 @@
     "last_login": null,
     "is_active": true,
     "login_attempts": 0,
-    "updated_at": "2025-10-24T18:19:25.116467",
+    "updated_at": "2025-10-28T11:17:31.852032",
     "failed_attempts": 0,
     "lockout_until": 0
   }

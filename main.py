@@ -4,7 +4,7 @@ import json
 import re
 import random
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, make_response
 
 main = Blueprint('main', __name__, template_folder="templates")
 
@@ -99,7 +99,12 @@ def home():
                elif note.get('status') == 'archived':
                    archived_notes.append(note)
    
-   return render_template('home.html', active_notes=active_notes, archived_notes=archived_notes)
+   # Add cache control headers to prevent back button access after logout
+   response = make_response(render_template('home.html', active_notes=active_notes, archived_notes=archived_notes))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/add_note', methods=['POST'])
 @login_required
@@ -130,7 +135,13 @@ def add_note():
        flash("Failed to save note.", "error")
        return redirect(url_for('main.home'))
    flash("Note added.", "success")
-   return redirect(url_for('main.home'))
+   
+   # Add cache control for redirect
+   response = redirect(url_for('main.home'))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/edit_note/<int:note_id>', methods=['GET','POST'])
 @login_required
@@ -156,10 +167,23 @@ def edit_note(note_id):
            flash("Failed to save changes.", "error")
            return redirect(url_for('main.edit_note', note_id=note_id))
        flash("Note updated.", "success")
-       return redirect(url_for('main.home'))
+       
+       # Add cache control for redirect
+       response = redirect(url_for('main.home'))
+       response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+       response.headers['Pragma'] = 'no-cache'
+       response.headers['Expires'] = '0'
+       return response
+   
    active_notes = [n for n in notes if isinstance(n, dict) and n.get('username') == session['username'] and n.get('status') == 'active']
    archived_notes = [n for n in notes if isinstance(n, dict) and n.get('username') == session['username'] and n.get('status') == 'archived']
-   return render_template('home.html', active_notes=active_notes, archived_notes=archived_notes, edit_note=note)
+   
+   # Add cache control for GET request
+   response = make_response(render_template('home.html', active_notes=active_notes, archived_notes=archived_notes, edit_note=note))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/delete_note/<int:note_id>')
 @login_required
@@ -180,7 +204,13 @@ def delete_note(note_id):
        flash("Note archived.", "info")
    else:
        flash("Note not found.", "error")
-   return redirect(url_for('main.home'))
+   
+   # Add cache control for redirect
+   response = redirect(url_for('main.home'))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/restore_note/<int:note_id>')
 @login_required
@@ -201,7 +231,13 @@ def restore_note(note_id):
        flash("Note restored.", "success")
    else:
        flash("Note not found.", "error")
-   return redirect(url_for('main.home'))
+   
+   # Add cache control for redirect
+   response = redirect(url_for('main.home'))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/permanent_delete/<int:note_id>')
 @login_required
@@ -218,7 +254,13 @@ def permanent_delete(note_id):
        flash("Note permanently deleted.", "error")
    else:
        flash("Note not found.", "error")
-   return redirect(url_for('main.home'))
+   
+   # Add cache control for redirect
+   response = redirect(url_for('main.home'))
+   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+   response.headers['Pragma'] = 'no-cache'
+   response.headers['Expires'] = '0'
+   return response
 
 @main.route('/profile', methods=['GET','POST'])
 @login_required
@@ -313,7 +355,12 @@ def profile():
 
         return redirect(url_for('main.verify_profile_update'))
 
-    return render_template('profile.html', user=user)
+    # Add cache control for GET request
+    response = make_response(render_template('profile.html', user=user))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @main.route('/verify_profile_update', methods=['GET','POST'])
 @login_required
@@ -423,7 +470,13 @@ def verify_profile_update():
                 delete_otp_session(username)
                 session.pop('profile_update_data', None)
                 flash("Profile updated successfully!", "success")
-                return redirect(url_for('main.profile'))
+                
+                # Add cache control for redirect
+                response = redirect(url_for('main.profile'))
+                response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+                response.headers['Pragma'] = 'no-cache'
+                response.headers['Expires'] = '0'
+                return response
                 
             except Exception as e:
                 current_app.logger.exception("Failed to save user profile")
@@ -437,8 +490,13 @@ def verify_profile_update():
             flash("User not found in database.", "error")
             return redirect(url_for('main.profile'))
 
-    return render_template('verify_profile_update.html',
+    # Add cache control for GET request
+    response = make_response(render_template('verify_profile_update.html',
                          current_username=username,
                          otp_display=otp_display,
                          time_remaining=time_remaining,
-                         time_consumed=time_consumed)
+                         time_consumed=time_consumed))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
